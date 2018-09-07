@@ -1,0 +1,23 @@
+/* Place main CSS here */
+
+html {
+font-size: 18px; /* sets baseline font size for all relative units */
+}
+
+body {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    background-color: #a7adbb;
+    color: black;
+}
+
+h1 {
+    margin-top: 1rem; /* creates a but of space at the top */
+}
+
+.center { /* use any time something needs to be center */
+    text-align: center;
+}
+
+.btn {
+    margin: 0.5rem 0;
+}
