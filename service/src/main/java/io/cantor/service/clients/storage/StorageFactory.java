@@ -38,12 +38,29 @@ public class StorageFactory {
     }
 
     private synchronized static Optional<Storage> hbase(Config config, String localId) {
-        // todo: implement hbase storage
-        return Optional.empty();
+        if (null != hbaseStorage)
+            return Optional.of(hbaseStorage);
+
+        try {
+            hbaseStorage = new HBaseStorage(config, localId);
+        } catch (Exception e) {
+            if (log.isErrorEnabled())
+                log.error("Try to connect hbase failed", e);
+            return Optional.empty();
+        }
+        return Optional.of(hbaseStorage);
     }
 
     private synchronized static Optional<Storage> redis(Config config, String localId) {
-        // todo: implement redis storage
-        return Optional.empty();
+        if (null != redisStorage)
+            return Optional.of(redisStorage);
+        try {
+            redisStorage = new RedisStorage(config, localId);
+        } catch (Exception e) {
+            if (log.isErrorEnabled())
+                log.error("Try to connect redis failed", e);
+            return Optional.empty();
+        }
+        return Optional.of(redisStorage);
     }
 }

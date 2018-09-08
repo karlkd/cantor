@@ -17,7 +17,7 @@ class BoundHttpResponseEncoder extends HttpResponseEncoder {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        // context = PooledDirectByteBufAllocator.forceDirectAllocator(ctx);
+        context = PooledDirectByteBufAllocator.forceDirectAllocator(ctx);
         super.handlerAdded(context);
     }
 }

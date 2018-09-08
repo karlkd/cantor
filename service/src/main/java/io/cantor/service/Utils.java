@@ -1,8 +1,13 @@
 package io.cantor.service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Utils {
 
     private static final String EMPTY = "";
@@ -32,5 +37,15 @@ public class Utils {
         builder.append("}");
 
         return builder.toString();
+    }
+
+    public static String hostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            if (log.isErrorEnabled())
+                log.error("Failed to get hostname", e);
+            return null;
+        }
     }
 }

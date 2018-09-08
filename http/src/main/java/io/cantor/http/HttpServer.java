@@ -22,7 +22,7 @@ public class HttpServer {
 
     private final HttpServerHandler handler;
 
-    private final ServerBootstrap bootstrap = new ServerBootstrap();
+    private final ServerBootstrap bootstrap;
 
     private final ChannelGroup channelGroup;
 
@@ -34,7 +34,7 @@ public class HttpServer {
         this.handler = handler;
         this.channelGroup = new DefaultChannelGroup("netserver-channels",
                                                     GlobalEventExecutor.INSTANCE);
-        // this.bootstrap = Bootstraps.serverBootstrap(acceptors, workers);
+        this.bootstrap = Bootstraps.serverBootstrap(acceptors, workers);
     }
 
     public synchronized void bind(@NonNull String host, int port, Callback<Channel> callback) {

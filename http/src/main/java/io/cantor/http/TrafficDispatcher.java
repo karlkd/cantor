@@ -19,10 +19,10 @@ public class TrafficDispatcher {
     TrafficDispatcher() {
         acceptors = new NioEventLoopGroup(1,
                                           new WatchedThreadFactory(String.format("%s-%s",
-                                                                                 "traffic",
-                                                                                 "accept"),
-                                                                   ThreadPattern.IO_LOOP,
-                                                                   5000));
+                                                                                   "traffic",
+                                                                                   "accept"),
+                                                                     ThreadPattern.IO_LOOP,
+                                                                     5000));
 
         NioEventLoopGroup.class.cast(acceptors).setIoRatio(100);
 

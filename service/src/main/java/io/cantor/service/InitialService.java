@@ -2,12 +2,14 @@ package io.cantor.service;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.cantor.http.Application;
+import io.cantor.http.Applications;
+import io.cantor.http.Server;
 import io.cantor.service.clients.TimeWatcher;
 import io.cantor.service.clients.storage.Storage;
 import io.cantor.service.clients.storage.StorageFactory;
@@ -20,24 +22,25 @@ public class InitialService {
     private static final String PARSE_PATTERN = "/info";
 
     private TimeWatcher watcher;
+
     private List<Storage> storages;
 
     public static void main(String[] args) {
         InitialService initialService = new InitialService();
+        Runtime.getRuntime().addShutdownHook(new Thread(initialService::destroy));
     }
 
     public InitialService() {
-        Config sysConfig = ConfigFactory.load("application");
-        sysConfig = sysConfig.withFallback(ConfigFactory.empty()
-                                                        .withValue("instance.id",
-                                                                   ConfigValueFactory.fromAnyRef(System.getProperty("host.name"))));
-        String instanceId = sysConfig.getString("instance.id");
-        if (log.isInfoEnabled()) {
-            log.info("starting service {}", instanceId);
+        Config appConfig = ConfigFactory.load("application");
+        String instanceId = Utils.hostname();
+        if (null == instanceId || instanceId.equals("localhost") ||
+                instanceId.equals("127.0.0.1")) {
+            throw new RuntimeException(String.format(
+                    "Failed to get hostname; Current hostname is %s. Shutdown service.",
+                    instanceId));
         }
-        Config appConfig = sysConfig.getConfig("application");
 
-        String[] storageList = appConfig.getString("storages.sequence").split(",");
+        String[] storageList = appConfig.getString("storage.sequence").split(",");
         if (storageList.length <= 0)
             throw new IllegalStateException("Number of storage should be at least 1.");
 
@@ -67,8 +70,24 @@ public class InitialService {
         watcher = new TimeWatcher(appConfig, storages, instanceId);
         watcher.start();
 
-       return;
+        // init api handlers
+        log.info("init api handlers");
+        Application application = Applications.builder()
+                                              .build();
+
+        Server server = new Server(application);
+        server.startup(8080);
     }
 
+    public void destroy() {
+        log.info("stop watcher");
+        if (null != watcher)
+            watcher.stop();
 
+        // destroy storage
+        for (Storage storage : storages) {
+            log.info("destroy {} storage", storage.type());
+            storage.close();
+        }
+    }
 }
