@@ -16,8 +16,6 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -53,8 +51,6 @@ class HBaseStorage implements Storage {
     private static final int TABLE_OPERATION_TIMEOUT = 500; // ms
     private static final long DEFAULT_TTL = 86400L * 1000L; // ms
     private final byte[] HBASE_LATTICE_KEY = Bytes.toBytes("time_lattice");
-
-    private static final long DAY_SECOND_NUM = 24L * 60L * 60L;
 
     private final int tableCount;
     private final long ttl;
@@ -113,10 +109,6 @@ class HBaseStorage implements Storage {
         Table table = tableConnections.get(tbl);
 
         try {
-            String lastDayRowKey = String.format(ROW_KEY_FMT, ts - DAY_SECOND_NUM);
-            // delete the last day data with this table
-            deleteLastDayData(table, lastDayRowKey);
-
             Increment increment = new Increment(Bytes.toBytes(String.format(ROW_KEY_FMT, ts)));
             increment.setTTL(ttl);
             byte[] col = Bytes.toBytes(String.valueOf(category));
@@ -131,31 +123,6 @@ class HBaseStorage implements Storage {
                         "increment range value failed for [ category: {} ] [ timestamp {} ] [ range {} ]",
                         category, ts, range, e);
             return Optional.empty();
-        }
-    }
-
-    public static void deleteLastDayData(Table table, String stopRowStr) {
-        Scan scan = new Scan();
-        scan.withStopRow(Bytes.toBytes(stopRowStr));
-
-        ResultScanner rs = null;
-        try {
-            rs = table.getScanner(scan);
-            List list = new ArrayList();
-            for (Result result : rs) {
-                Delete d1 = new Delete(result.getRow());
-                list.add(d1);
-            }
-            table.delete(list);
-        } catch (IOException e) {
-            System.out.println("error");
-            e.printStackTrace();
-            if (log.isErrorEnabled())
-                log.error(
-                    "delete hbase data with table: [{}] error, msg: {}",
-                    table.getName(), e);
-        } finally {
-            rs.close();
         }
     }
 

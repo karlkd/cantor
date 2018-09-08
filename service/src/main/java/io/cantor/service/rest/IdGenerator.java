@@ -82,6 +82,7 @@ public class IdGenerator implements
     @Override
     public void handle(AffinityScheduler scheduler, HandlerRequest req, HandlerResponse resp) {
         resp.header("server", timeWatcher.localId());
+        resp.header("Content-Type", "application/json");
         Map<String, String> queries = req.queries();
         long category;
         if (!queries.containsKey(CATEGORY) || queries.get(CATEGORY).isEmpty())
