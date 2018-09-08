@@ -13,6 +13,8 @@ import io.cantor.http.Server;
 import io.cantor.service.clients.TimeWatcher;
 import io.cantor.service.clients.storage.Storage;
 import io.cantor.service.clients.storage.StorageFactory;
+import io.cantor.service.rest.IdGenerator;
+import io.cantor.service.rest.IdParser;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -72,7 +74,11 @@ public class InitialService {
 
         // init api handlers
         log.info("init api handlers");
+        IdGenerator idGenerator = new IdGenerator(storages, watcher);
         Application application = Applications.builder()
+                                              .post(ID_PATTERN, idGenerator)
+                                              .get(ID_PATTERN, idGenerator)
+                                              .get(PARSE_PATTERN, new IdParser())
                                               .build();
 
         Server server = new Server(application);

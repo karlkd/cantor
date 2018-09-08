@@ -5,10 +5,7 @@ import java.util.Optional;
 
 public interface Storage {
 
-    String METRIC_RATE = "Rate";
-    String METRIC_SOURCE = "source";
-
-    Optional<Long> incrementAndGet(long serviceCode, long extra, long ts, long range);
+    Optional<Long> incrementAndGet(long category, long ts, long range);
 
     void close();
 

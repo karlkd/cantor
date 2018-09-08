@@ -4,24 +4,18 @@ import java.util.concurrent.TimeUnit;
 
 class SnowFlake {
 
-
     private static final long BEGINNING = 1L;
-    private static final long EPOCH = 0L;
 
     private long sequence = BEGINNING;
     private long lastEpochSeconds = -1L;
     private long instanceId;
-    private long extra;
-    private long serviceCode;
+    private long category;
     private long descriptor;
-    private long cluster;
 
-    SnowFlake(Long instanceId, long serviceCode, long extra, long desc, long cluster) {
-        this.instanceId = instanceId & Parser.CURRENT_SCHEMA.preserveMusk();
-        this.serviceCode = serviceCode & Parser.CURRENT_SCHEMA.serviceCodeMusk();
-        this.extra = extra & Parser.CURRENT_SCHEMA.extraMusk();
+    SnowFlake(long category, long instanceId, long desc) {
+        this.category = category & Parser.CURRENT_SCHEMA.categoryMusk();
+        this.instanceId = instanceId & Parser.CURRENT_SCHEMA.instanceMusk();
         this.descriptor = desc;
-        this.cluster = cluster;
     }
 
     synchronized long[] next(long batch) {
@@ -46,18 +40,15 @@ class SnowFlake {
 
         lastEpochSeconds = current;
 
-        long high = serviceCode << Parser.CURRENT_SCHEMA.serviceCodeLeft()
-                | extra << Parser.CURRENT_SCHEMA.extraLeft()
-                | cluster << Parser.CURRENT_SCHEMA.clusterLeft()
-                | descriptor << Parser.CURRENT_SCHEMA.descriptorLeft()
-                | instanceId;
-
-        long low = current << Parser.CURRENT_SCHEMA.timestampLeft()
+        long id = descriptor << Parser.CURRENT_SCHEMA.descriptorLeft()
+                | category << Parser.CURRENT_SCHEMA.categoryCodeLeft()
+                | instanceId << Parser.CURRENT_SCHEMA.instanceCodeLeft()
+                | current << Parser.CURRENT_SCHEMA.timestampLeft()
                 | sequence;
 
         sequence = (sequence + batch) & Parser.CURRENT_SCHEMA.sequenceMusk();
 
-        return new long[]{high, low, current};
+        return new long[]{id, current};
     }
 
     private long forceToNextMillis() {
@@ -69,12 +60,12 @@ class SnowFlake {
     }
 
     private long epochSeconds(long millis) {
-        long epochMillis = millis - EPOCH;
+        long epochMillis = millis - Parser.START_EPOCH;
         return TimeUnit.MILLISECONDS.toSeconds(epochMillis);
     }
 
-    static Parser.Deserializer deserializer(long high, long low) {
-        return new Parser.Deserializer(high, low);
+    static Parser.Deserializer deserializer(long id) {
+        return new Parser.Deserializer(id);
     }
 
 }

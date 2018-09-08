@@ -4,23 +4,9 @@ public interface VersionedSchema {
 
     int lowBit();
 
-    long serviceCodeMusk();
-
-    long serviceCodeLeft();
-
-    long extraMusk();
-
-    long extraLeft();
-
-    long clusterMusk();
-
-    long clusterLeft();
-
     long descriptorMusk();
 
     long descriptorLeft();
-
-    long preserveMusk();
 
     long timestampMusk();
 
@@ -28,11 +14,18 @@ public interface VersionedSchema {
 
     long sequenceMusk();
 
-    long maxServiceCode();
+    long categoryMusk();
 
-    long maxExtra();
+    long categoryCodeLeft();
+
+    long instanceMusk();
+
+    long instanceCodeLeft();
 
     long maxTimestamp();
 
     long maxSequence();
+
+    long maxCategory();
+
 }

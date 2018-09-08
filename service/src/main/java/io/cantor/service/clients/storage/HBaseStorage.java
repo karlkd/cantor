@@ -46,11 +46,10 @@ class HBaseStorage implements Storage {
     private static final String NAMESPACE = "infra_pub";
     private static final String TABLE_FMT = "id-gen-%s";
     private static final String META_TABLE = "id-gen-meta";
-    private static final String ROW_KEY_FMT = "%s_%s";
+    private static final String ROW_KEY_FMT = "%s";
     private static final int TABLE_COUNT = 10;
     private static final int TABLE_OPERATION_TIMEOUT = 500; // ms
     private static final long DEFAULT_TTL = 86400L * 1000L; // ms
-    private static final int PER_CNT = 1;
     private final byte[] HBASE_LATTICE_KEY = Bytes.toBytes("time_lattice");
 
     private final int tableCount;
@@ -68,8 +67,8 @@ class HBaseStorage implements Storage {
     HBaseStorage(Config config, String localId) throws Exception {
         this.localId = localId;
         this.hbaseTimeLatticeCol = Bytes.toBytes(localId);
-        tableCount = config.hasPath("hbase.table.count") ? config
-                .getInt("hbase.table.count") : TABLE_COUNT;
+        tableCount = config.hasPath("hbase.table.count") ? config.getInt(
+                "hbase.table.count") : TABLE_COUNT;
         ttl = config.hasPath("hbase.ttl") ? config.getLong("hbase.ttl") * 1000L : DEFAULT_TTL;
 
         hbaseConf = HBaseConfiguration.create();
@@ -78,9 +77,9 @@ class HBaseStorage implements Storage {
         hbaseConf.set("hbase.zookeeper.property.clientPort", config.getString("zookeeper.port"));
         hbaseConf.set("zookeeper.znode.parent", config.getString("zookeeper.znode.parent"));
         hbaseConf.set("hbase.hconnection.threads.max",
-                      config.getString("hbase.hconnection.threads.max"));
+                config.getString("hbase.hconnection.threads.max"));
         hbaseConf.set("hbase.hconnection.threads.core",
-                      config.getString("hbase.hconnection.threads.core"));
+                config.getString("hbase.hconnection.threads.core"));
 
         connection = ConnectionFactory.createConnection(hbaseConf);
         createTableConnections(tableCount);
@@ -88,14 +87,12 @@ class HBaseStorage implements Storage {
 
         ThreadFactory factory = (new ThreadFactoryBuilder()).setDaemon(false)
                                                             .setNameFormat("hbase-probe-%s")
-                                                            .setUncaughtExceptionHandler(
-                                                                    (t, e) -> {
-                                                                        if (log.isErrorEnabled())
-                                                                            log.error(
-                                                                                    "hbase heartbeat thread error [thread {}]",
-                                                                                    t.getId(),
-                                                                                    e);
-                                                                    })
+                                                            .setUncaughtExceptionHandler((t, e) -> {
+                                                                if (log.isErrorEnabled())
+                                                                    log.error(
+                                                                            "hbase heartbeat thread error [thread {}]",
+                                                                            t.getId(), e);
+                                                            })
                                                             .build();
         executorService = Executors.newSingleThreadScheduledExecutor(factory);
         checkConn();
@@ -107,14 +104,13 @@ class HBaseStorage implements Storage {
      * @return the value before increment
      */
     @Override
-    public Optional<Long> incrementAndGet(long serviceCode, long extra, long ts, long range) {
-        String tbl = String.format(TABLE_FMT, serviceCode % TABLE_COUNT);
+    public Optional<Long> incrementAndGet(long category, long ts, long range) {
+        String tbl = String.format(TABLE_FMT, category % TABLE_COUNT);
         Table table = tableConnections.get(tbl);
         try {
-            Increment increment = new Increment(
-                    Bytes.toBytes(String.format(ROW_KEY_FMT, ts, extra)));
+            Increment increment = new Increment(Bytes.toBytes(String.format(ROW_KEY_FMT, ts)));
             increment.setTTL(ttl);
-            byte[] col = Bytes.toBytes(String.valueOf(serviceCode));
+            byte[] col = Bytes.toBytes(String.valueOf(category));
             increment.addColumn(SERVICE_FAMILY, col, range);
             Result result = table.increment(increment);
             Long afterInc = Bytes.toLong(result.getValue(SERVICE_FAMILY, col));
@@ -123,8 +119,8 @@ class HBaseStorage implements Storage {
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error(
-                        "increment range value failed for [ serviceCode: {} ] [ extra {} ] [ timestamp {} ] [ range {} ]",
-                        serviceCode, extra, ts, range, e);
+                        "increment range value failed for [ category: {} ] [ timestamp {} ] [ range {} ]",
+                        category, ts, range, e);
             return Optional.empty();
         }
     }
@@ -169,20 +165,20 @@ class HBaseStorage implements Storage {
             Result result = metaTable.get(get);
             byte[] value = result.getValue(INST_FAMILY, hbaseTimeLatticeCol);
 
-            long timeSnapshot = null != value && value.length > 0 ? Bytes
-                    .toLong(value, 0) : BEGINNING;
+            long timeSnapshot =
+                    null != value && value.length > 0 ? Bytes.toLong(value, 0) : BEGINNING;
             if (log.isDebugEnabled())
                 log.debug("[HBase] time snapshot is {} and local current is {}", timeSnapshot,
-                          localTime);
+                        localTime);
             if (timeSnapshot < localTime) {
-                Put put = (new Put(HBASE_LATTICE_KEY))
-                        .addColumn(INST_FAMILY, hbaseTimeLatticeCol, Bytes.toBytes(localTime));
+                Put put = (new Put(HBASE_LATTICE_KEY)).addColumn(INST_FAMILY, hbaseTimeLatticeCol,
+                        Bytes.toBytes(localTime));
                 metaTable.put(put);
             }
         } catch (IOException e) {
             if (log.isErrorEnabled())
                 log.warn("[HBase] update timestamp snapshot failed for {}. local timestamp is {}",
-                         localId, localTime, e);
+                        localId, localTime, e);
         }
 
         return localTime;
@@ -199,10 +195,10 @@ class HBaseStorage implements Storage {
             result = metaTable.get(get);
             List<Cell> cells = result.listCells();
             if (log.isDebugEnabled())
-                log.debug("Time lattice is {}",
-                          cells.stream()
-                               .map(c -> Bytes.toLong(c.getValueArray(), c.getValueOffset()))
-                               .collect(Collectors.toList()));
+                log.debug("Time lattice is {}", cells.stream()
+                                                     .map(c -> Bytes.toLong(c.getValueArray(),
+                                                             c.getValueOffset()))
+                                                     .collect(Collectors.toList()));
             for (Cell cell : cells) {
                 long current = Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
                 times.add(current);

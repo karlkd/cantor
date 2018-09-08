@@ -20,67 +20,31 @@ public class Schema {
     private static class V0 implements VersionedSchema {
         private static final int VERSION_CODE = 0;
 
-        private static final long SERVICE_BIT = 20L;
-        private static final long EXTRA_BIT = 6L;
-        private static final long CLUSTER_BIT = 5L;
-        private static final long DESCRIPTOR_BIT = 5L;
-        private static final long PRESERVE_BIT = 23L;
-        private static final long TIMESTAMP_BIT = 33L;
-        private static final long SEQUENCE_BIT = 30L;
-        private static final long MAX_SERVICE_CODE = (1L << SERVICE_BIT) - 1;
-        private static final long MAX_EXTRA = (1L << EXTRA_BIT) - 1;
+        private static final long DESCRIPTOR_BIT = 2L;
+        private static final long CATEGORY_BIT = 8L;
+        private static final long INSTANCE_BIT = 2L;
+        private static final long TIMESTAMP_BIT = 28L;
+        private static final long SEQUENCE_BIT = 17L;
+
+        private static final long MAX_CATEGORY = (1L << CATEGORY_BIT) - 1;
         private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BIT) - 1;
         private static final long MAX_SEQUENCE = (1L << SEQUENCE_BIT) - 1;
         private static final int LOW_BIT = 64;
 
-        private static final long SERVICE_MUSK = ~(-1L << SERVICE_BIT);
-        private static final long EXTRA_MUSK = ~(-1L << EXTRA_BIT);
-        private static final long CLUSTER_MUSK = ~(-1L << CLUSTER_BIT);
         private static final long DESCRIPTOR_MUSK = ~(-1L << DESCRIPTOR_BIT);
-        private static final long PRESERVE_MUSK = ~(-1L << PRESERVE_BIT);
-
-        private static final long DESCRIPTOR_LEFT = PRESERVE_BIT;
-        private static final long CLUSTER_LEFT = DESCRIPTOR_BIT + DESCRIPTOR_LEFT;
-        private static final long EXTRA_LEFT = CLUSTER_BIT + CLUSTER_LEFT;
-        private static final long SERVICE_LEFT = EXTRA_BIT + EXTRA_LEFT;
-
+        private static final long CATEGORY_MUSK = ~(-1L << CATEGORY_BIT);
+        private static final long INSTANCE_MUSK = ~(-1L << INSTANCE_BIT);
         private static final long TIMESTAMP_MUSK = ~(-1L << TIMESTAMP_BIT);
         private static final long SEQUENCE_MUSK = ~(-1L << SEQUENCE_BIT);
+
         private static final long TIMESTAMP_LEFT = SEQUENCE_BIT;
+        private static final long INSTANCE_LEFT = TIMESTAMP_BIT + TIMESTAMP_LEFT;
+        private static final long CATEGORY_LEFT = INSTANCE_BIT + INSTANCE_LEFT;
+        private static final long DESCRIPTOR_LEFT = CATEGORY_BIT + CATEGORY_LEFT;
 
         @Override
         public int lowBit() {
             return V0.LOW_BIT;
-        }
-
-        @Override
-        public long serviceCodeMusk() {
-            return V0.SERVICE_MUSK;
-        }
-
-        @Override
-        public long serviceCodeLeft() {
-            return V0.SERVICE_LEFT;
-        }
-
-        @Override
-        public long extraMusk() {
-            return V0.EXTRA_MUSK;
-        }
-
-        @Override
-        public long extraLeft() {
-            return V0.EXTRA_LEFT;
-        }
-
-        @Override
-        public long clusterMusk() {
-            return V0.CLUSTER_MUSK;
-        }
-
-        @Override
-        public long clusterLeft() {
-            return V0.CLUSTER_LEFT;
         }
 
         @Override
@@ -94,8 +58,13 @@ public class Schema {
         }
 
         @Override
-        public long preserveMusk() {
-            return V0.PRESERVE_MUSK;
+        public long instanceMusk() {
+            return V0.INSTANCE_MUSK;
+        }
+
+        @Override
+        public long instanceCodeLeft() {
+            return V0.INSTANCE_LEFT;
         }
 
         @Override
@@ -114,13 +83,13 @@ public class Schema {
         }
 
         @Override
-        public long maxServiceCode() {
-            return V0.MAX_SERVICE_CODE;
+        public long categoryMusk() {
+            return V0.CATEGORY_MUSK;
         }
 
         @Override
-        public long maxExtra() {
-            return V0.MAX_EXTRA;
+        public long categoryCodeLeft() {
+            return V0.CATEGORY_LEFT;
         }
 
         @Override
@@ -131,6 +100,11 @@ public class Schema {
         @Override
         public long maxSequence() {
             return V0.MAX_SEQUENCE;
+        }
+
+        @Override
+        public long maxCategory() {
+            return V0.MAX_CATEGORY;
         }
     }
 }

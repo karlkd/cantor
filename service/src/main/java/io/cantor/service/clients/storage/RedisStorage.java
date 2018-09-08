@@ -23,13 +23,11 @@ class RedisStorage implements Storage {
 
     private static final long CATE_REDIS = 1L;
 
-    private static final int PER_CNT = 1;
     private static final int CHECK_ACTIVE_DELAY = 1;
     private static final String TYPE = "Redis";
     private static final String PONG_RESPONSE = "PONG";
 
     private static final String TIMESTAMP_KEY_FMT = "%s";
-    private static final String SERVICE_FIELD_FMT = "%s-%s";
     private static final int DEFAULT_TTL = 86400;
     private static final String NULL = "nil";
     private static final long BEGINNING = 0;
@@ -70,7 +68,7 @@ class RedisStorage implements Storage {
     }
 
     @Override
-    public Optional<Long> incrementAndGet(long serviceCode, long extra, long ts, long range) {
+    public Optional<Long> incrementAndGet(long category, long ts, long range) {
         if (!available())
             return Optional.empty();
 
@@ -79,8 +77,7 @@ class RedisStorage implements Storage {
         Long after = null;
         checkBusyAndBlock();
         try {
-            after = jedis.hincrBy(timestampKey,
-                                  String.format(SERVICE_FIELD_FMT, serviceCode, extra), range);
+            after = jedis.hincrBy(timestampKey, String.format("cate-%s", category), range);
             if (range == after)
                 jedis.expireAt(timestampKey, ts + ttl);
 
