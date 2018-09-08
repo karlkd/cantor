@@ -13,6 +13,7 @@ import io.cantor.http.Server;
 import io.cantor.service.clients.TimeWatcher;
 import io.cantor.service.clients.storage.Storage;
 import io.cantor.service.clients.storage.StorageFactory;
+import io.cantor.service.rest.TestHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -72,8 +73,8 @@ public class InitialService {
 
         // init api handlers
         log.info("init api handlers");
-        Application application = Applications.builder()
-                                              .build();
+        TestHandler testHandler = new TestHandler();
+        Application application = Applications.builder().get("/test",testHandler).build();
 
         Server server = new Server(application);
         server.startup(8080);
