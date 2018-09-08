@@ -10,7 +10,7 @@ services:
     depends_on:
       - "redis"
       - "influxdb"
-#      - "hbase"
+      - "hbase"
 
 
   redis:
@@ -21,18 +21,18 @@ services:
     ports:
       - "3000:3000"
 
-#  hbase:
-#    image: harisekhon/hbase-dev:latest
-#    ports:
-##      - 2181:2181   #hbase-manage 管理ZK端口
-##      - 8090:8080
-#      - 8085:8085
-##      - 9090:9090
-#      - 9095:9095
-##      - 16000:16000
-#      - 16010:16010
-##      - 16201:16201
-#      - 16301:16301
+  hbase:
+    image: harisekhon/hbase-dev:latest
+    ports:
+#      - 2181:2181   #hbase-manage 管理ZK端口
+#      - 8090:8080
+      - 8085:8085
+#      - 9090:9090
+      - 9095:9095
+#      - 16000:16000
+      - 16010:16010
+#      - 16201:16201
+      - 16301:16301
 
   influxdb:
     image: "influxdb:1.6.2"
