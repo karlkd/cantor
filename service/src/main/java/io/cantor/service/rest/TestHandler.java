@@ -2,6 +2,8 @@ package io.cantor.service.rest;
 
 import com.google.common.collect.Maps;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import io.cantor.http.AffinityScheduler;
@@ -18,6 +20,7 @@ public class TestHandler implements AppRequestResponseHandler<AffinityScheduler,
         Integer random =(int) (Math.random() * 10000);
         //concurrentMap.put(random,new Object());
         log.info("random = {}",random);
+        resp.write("{\"id\": \"870897089\",\"range\": \"2000\"}".getBytes());
         resp.ok();
     }
 }
