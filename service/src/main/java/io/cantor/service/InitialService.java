@@ -4,20 +4,23 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import java.util.List;
+
+import io.cantor.service.clients.TimeWatcher;
+import io.cantor.service.clients.storage.Storage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class InitialService {
 
-    private static final String ID_PATTERN = "/id/{service_code}";
+    private static final String ID_PATTERN = "/id";
     private static final String PARSE_PATTERN = "/info";
 
-    // private TimeWatcher watcher;
-
+    private TimeWatcher watcher;
+    private List<Storage> storages;
 
     public static void main(String[] args) {
         InitialService initialService = new InitialService();
-
     }
 
     public InitialService() {
@@ -35,8 +38,9 @@ public class InitialService {
         if (storageList.length <= 0)
             throw new IllegalStateException("Number of storage should be at least 1.");
 
-
-
+        //start time watcher
+        watcher = new TimeWatcher(appConfig, storages, instanceId);
+        watcher.start();
 
        return;
     }
