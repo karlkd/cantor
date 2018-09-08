@@ -1,0 +1,19 @@
+{
+  "servers" : [ {
+    "port" : "9002",
+    "host" : "localhost",
+    "queries" : [ {
+      "obj" : "java.lang:type=Memory",
+      "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
+      "resultAlias":"jvmMemory",
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+        "url" : "http://influxdb:8086/",
+        "username" : "admin",
+        "password" : "123456",
+        "database" : "jmxdb",
+        "tags"     : {"application" : "cantor_service"}
+      } ]
+    } ]
+  } ]
+}
