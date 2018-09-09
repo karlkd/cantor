@@ -49,6 +49,7 @@ public class ServiceCaller {
         sequenceRequest.queries().forEach(urlBuilder::addQueryParameter);
         okhttp3.Request request = new okhttp3.Request.Builder()
                 .url(urlBuilder.build())
+                .get()
                 .build();
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -106,13 +107,13 @@ public class ServiceCaller {
 
     @Getter
     public static class SequenceRespBody {
-        @JsonProperty("id")
-        private long id;
+        @JsonProperty("start")
+        private String start;
         @JsonProperty("range")
-        private long range;
+        private String range;
 
         public Range sequenceRange() {
-            return new Range(id, range);
+            return new Range(Long.valueOf(start), Long.valueOf(range));
         }
     }
 }
