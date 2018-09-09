@@ -60,7 +60,7 @@ class SnowFlake {
     }
 
     private long epochSeconds(long millis) {
-        long epochMillis = millis - Parser.START_EPOCH;
+        long epochMillis = millis - Parser.START_EPOCH * 1000;
         return TimeUnit.MILLISECONDS.toSeconds(epochMillis);
     }
 

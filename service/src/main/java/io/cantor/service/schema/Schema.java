@@ -24,7 +24,7 @@ public class Schema {
         private static final long CATEGORY_BIT = 8L;
         private static final long INSTANCE_BIT = 2L;
         private static final long TIMESTAMP_BIT = 28L;
-        private static final long SEQUENCE_BIT = 17L;
+        private static final long SEQUENCE_BIT = 21L;
 
         private static final long MAX_CATEGORY = (1L << CATEGORY_BIT) - 1;
         private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BIT) - 1;
