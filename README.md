@@ -24,14 +24,19 @@ All components are dockerized. Deployment demonstration:
   - `$ cd $PROJECT_ROOT`
   - `$ docker-compose build`
   - `$ docker stack deploy -c docker-compose.yml cantor`
+  
+Service RESTful API:
 
-## Service
-
-## Persistence
-- Redis
-- HBase
+| API | HTTP Method | Parameters | Request example | Return |
+|:--- |:----------- |:---------- |:--------------- |:------ |
+| `/id` | GET | *cate*: Custom category, *range*: How many IDs do you want return in a batch | `http://localhost:8080/id?cate=0&range=100` | `{"start": "18446744073709551616", "range":"100"}` |
+| `/info` | GET | *id*: The ID to decode | `http://127.0.0.1:8080/info?id=36313111556915201` | `{"sequence": 1,"descriptor": 1,"category": 2,"timestamp": 21664133}` |
 
 ## SDK
+
+A Java SDK to improve the productivity of interacting with Cantor service.
+- Design for thread safety
+- Cache the IDs in memory with a TTL. When IDs are expired or out of stock, SDK will retrieve a new batch from Cantor service.
 
 ## Monitoring
 Monitoring by [Jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](https://github.com/influxdata/influxdb) & [grafana](https://github.com/grafana/grafana)
