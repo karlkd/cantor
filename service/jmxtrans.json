@@ -18,7 +18,7 @@
       "queries": [
         {
           "obj": "java.lang:type=Memory",
-          "resultAlias": "memory",
+          "resultAlias": "MemoryImpl",
           "attr": [
             "HeapMemoryUsage",
             "NonHeapMemoryUsage"
@@ -26,7 +26,7 @@
         },
         {
           "obj": "java.lang:type=Threading",
-          "resultAlias": "threading",
+          "resultAlias": "JvmThreadingImpl",
           "attr": [
             "DaemonThreadCount",
             "PeakThreadCount",
@@ -36,7 +36,7 @@
         },
         {
           "obj": "java.lang:type=OperatingSystem",
-          "resultAlias": "operatingSystem",
+          "resultAlias": "OperatingSystemImpl",
           "attr": [
             "SystemLoadAverage",
             "AvailableProcessors",
@@ -49,6 +49,21 @@
             "ProcessCpuLoad",
             "ProcessCpuTime",
             "SystemCpuLoad"
+          ]
+        },
+        {
+          "obj": "java.lang:type=GarbageCollector,*",
+          "resultAlias": "GarbageCollectorImpl",
+          "attr": [
+            "CollectionCount",
+            "CollectionTime"
+          ]
+        },
+        {
+          "obj": "java.lang:type=MemoryPool,*",
+          "resultAlias": "MemoryPoolImpl",
+          "attr": [
+            "Usage"
           ]
         }
       ]
