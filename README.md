@@ -67,7 +67,7 @@ Monitoring by [jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](http
   - Database: jmxdb
   - User: admin
   - Password: 123456
-- Import `jmxtrans.json` in grafana
+- Import `grafana.json` in grafana
 
 ## Performance Test
 Uses apache-jmeter as performance test client. Jmeter version: `apache-jmeter-4.0`.
