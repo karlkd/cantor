@@ -81,7 +81,7 @@ class RedisStorage implements Storage {
         try {
             after = jedis.hincrBy(timestampKey, String.format("cate-%s", category), range);
             if (range == after)
-                jedis.expireAt(timestampKey, ts + ttl);
+                jedis.expire(timestampKey, ttl);
 
         } catch (Exception e) {
             if (log.isErrorEnabled())
@@ -206,6 +206,7 @@ class RedisStorage implements Storage {
     @Override
     public boolean heartbeat(int instanceNumber, int ttl) {
         try {
+            checkBusyAndBlock();
             String key = String.format(RUNNING_STATE_FMT, instanceNumber);
             Long after = jedis.expire(key, ttl);
             if (null == after) {
@@ -213,14 +214,17 @@ class RedisStorage implements Storage {
                     log.warn("[Redis] Failed to update the heartbeat expired time for {}",
                             instanceNumber);
 
+                release();
                 return false;
             }
 
+            release();
             return true;
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error("[Redis] Failed to heartbeat");
 
+            release();
             return false;
         }
     }
