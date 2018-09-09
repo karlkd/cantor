@@ -25,6 +25,7 @@ public class ProducerTest {
         CopyOnWriteArrayList<Long> list = new CopyOnWriteArrayList<>();
         Assert.assertEquals(5L, sequence.category());
         Assert.assertEquals(1L, sequence.sequence());
+        Assert.assertEquals(2L, sequence.instance());
         CountDownLatch latch = new CountDownLatch(5);
         for (int i = 0; i < 5; i++) {
             new Thread(() -> {

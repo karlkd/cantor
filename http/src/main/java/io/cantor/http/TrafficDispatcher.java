@@ -34,13 +34,13 @@ public class TrafficDispatcher {
                                                                  5000));
         NioEventLoopGroup.class.cast(workers).setIoRatio(50);
 
-        executors = new ComputeEventLoopGroup(8,
+        executors = new ComputeEventLoopGroup(16,
                                               new WatchedThreadFactory(String.format("%s-%s",
                                                                                      "traffic",
                                                                                      "exec"),
                                                                        ThreadPattern.IO_LOOP,
                                                                        5000),
-                                              8);
+                                              64);
     }
 
     public AffinityScheduler assign() {
