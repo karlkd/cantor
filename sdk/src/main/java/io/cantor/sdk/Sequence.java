@@ -29,6 +29,10 @@ public class Sequence {
         return deserializer.category();
     }
 
+    public long instance() {
+        return deserializer.instance();
+    }
+
     public long timestamp() {
         return deserializer.timestamp();
     }

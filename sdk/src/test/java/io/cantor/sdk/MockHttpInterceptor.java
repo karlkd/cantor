@@ -27,6 +27,7 @@ public class MockHttpInterceptor implements Interceptor {
         long timestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - EPOCH;
         log.info("mock timestamp [{}]", timestamp);
         long id = category << Deserializer.CATEGORY_LEFT
+                  | 2L << Deserializer.INSTANCE_LEFT
                   | timestamp << Deserializer.TIMESTAMP_LEFT
                   | i.getAndIncrement() * 1000 + 1;
         ResponseBody responseBody = ResponseBody.create(
