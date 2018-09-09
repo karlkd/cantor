@@ -3,7 +3,7 @@ Cantor
 
 ## Introduction
 Cantor is a global sequence generator service. 
-Cantor can generate universal unique, relatively orderly, inverse decodable, 64-bit integer IDs.
+Cantor can generate unique, relatively orderly, inverse decodable, 64-bit integer IDs.
 
 Protocol of ID
 
@@ -34,7 +34,7 @@ All components are dockerized. Deployment demonstration:
 ## SDK
 
 ## Monitoring
-Used [Jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](https://github.com/influxdata/influxdb) & [grafana](https://github.com/grafana/grafana)
+Monitoring by [Jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](https://github.com/influxdata/influxdb) & [grafana](https://github.com/grafana/grafana)
 
 ![Monitoring](https://raw.githubusercontent.com/git-hacker/cantor/master/images/monitoring.png)
 
