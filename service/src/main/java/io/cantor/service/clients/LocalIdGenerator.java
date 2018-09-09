@@ -4,7 +4,6 @@ import org.apache.commons.math3.util.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.cantor.service.Utils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -14,19 +13,13 @@ public class LocalIdGenerator {
 
     private static ConcurrentHashMap<Long, SnowFlake> idSpace = new ConcurrentHashMap<>();
 
-    private long locatorId;
-
-    public LocalIdGenerator() {
-        this.locatorId = (long) Utils.hostname().hashCode();
-    }
-
-    public Pair<Long, Long> getFromLocal(long category, long range) {
-        Parser.Deserializer deserializer = next(category, range);
+    public Pair<Long, Long> getFromLocal(long category, long range, long locatorId) {
+        Parser.Deserializer deserializer = next(category, range, locatorId);
 
         return new Pair<>(deserializer.timestamp(), deserializer.sequence());
     }
 
-    private Parser.Deserializer next(long category, long range) {
+    private Parser.Deserializer next(long category, long range, long locatorId) {
 
         long[] parts = idSpace.computeIfAbsent(category,
                 (k) -> new SnowFlake(locatorId, category, LOCAL_CATE)).next(range);

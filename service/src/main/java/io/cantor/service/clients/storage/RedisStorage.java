@@ -22,16 +22,19 @@ import redis.clients.jedis.Jedis;
 class RedisStorage implements Storage {
 
     private static final long CATE_REDIS = 1L;
+    private static final long REGISTERED = 1L;
 
     private static final int CHECK_ACTIVE_DELAY = 1;
     private static final String TYPE = "Redis";
     private static final String PONG_RESPONSE = "PONG";
 
     private static final String TIMESTAMP_KEY_FMT = "%s";
+    private static final String RUNNING_STATE_FMT = "running_state_%s";
     private static final int DEFAULT_TTL = 86400;
     private static final String NULL = "nil";
     private static final long BEGINNING = 0;
     private static final String TIMESTAMP_KEY = "time_lattice";
+    private static final String INSTANCES_INDEX = "instances_index";
 
     private final int ttl;
     private final String host;
@@ -39,7 +42,6 @@ class RedisStorage implements Storage {
     private volatile Jedis jedis;
     private ScheduledExecutorService executorService;
     private volatile boolean active = false;
-    private volatile int resetCount = 0; // only one thread changes it
     private String localId;
     private AtomicBoolean ok = new AtomicBoolean(true);
 
@@ -64,7 +66,7 @@ class RedisStorage implements Storage {
             throw new ConnectException("can not connect to Redis");
         }
         executorService.scheduleAtFixedRate(this::checkConn, CHECK_ACTIVE_DELAY, CHECK_ACTIVE_DELAY,
-                                            TimeUnit.SECONDS);
+                TimeUnit.SECONDS);
     }
 
     @Override
@@ -106,11 +108,6 @@ class RedisStorage implements Storage {
     }
 
     @Override
-    public int resetCount() {
-        return resetCount;
-    }
-
-    @Override
     public long syncTime(long localCurrentTime) {
         if (log.isDebugEnabled())
             log.debug("Sync time from Redis");
@@ -125,7 +122,7 @@ class RedisStorage implements Storage {
             long timeSnapshot = opt.map(Long::valueOf).orElse(BEGINNING);
             if (log.isDebugEnabled())
                 log.debug("[Redis] time snapshot is {} and local current is {}", timeSnapshot,
-                          localCurrentTime);
+                        localCurrentTime);
             if (timeSnapshot < localCurrentTime)
                 setField(TIMESTAMP_KEY, localId, String.valueOf(localCurrentTime));
 
@@ -160,7 +157,7 @@ class RedisStorage implements Storage {
     }
 
     @Override
-    public void unregister() {
+    public void deregister() {
         try {
             deleteField(TIMESTAMP_KEY, localId);
         } catch (Exception e) {
@@ -177,6 +174,55 @@ class RedisStorage implements Storage {
     @Override
     public long descriptor() {
         return CATE_REDIS;
+    }
+
+    @Override
+    public int checkAndRegister(int maxInstances) {
+        int i = 0;
+        int instanceNumber = ILLEGAL_INSTANCE;
+        while (i < maxInstances) {
+            try {
+                String key = String.format(RUNNING_STATE_FMT, i);
+                Long state = jedis.incr(key);
+                if (null != state && state == REGISTERED) {
+                    instanceNumber = i;
+                    heartbeat(instanceNumber, Storage.DEFAULT_HEARTBEAT_SECONDS);
+                    break;
+                } else {
+                    if (log.isErrorEnabled())
+                        log.error(String.format("[Redis] Failed to check instances state of %s", key));
+                }
+            } catch (Exception e) {
+                if (log.isErrorEnabled())
+                    log.error("[Redis] Failed to check and register", e);
+            }
+
+            i++;
+        }
+
+        return instanceNumber;
+    }
+
+    @Override
+    public boolean heartbeat(int instanceNumber, int ttl) {
+        try {
+            String key = String.format(RUNNING_STATE_FMT, instanceNumber);
+            Long after = jedis.expire(key, ttl);
+            if (null == after) {
+                if (log.isWarnEnabled())
+                    log.warn("[Redis] Failed to update the heartbeat expired time for {}",
+                            instanceNumber);
+
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            if (log.isErrorEnabled())
+                log.error("[Redis] Failed to heartbeat");
+
+            return false;
+        }
     }
 
     private void checkBusyAndBlock() {
@@ -221,7 +267,7 @@ class RedisStorage implements Storage {
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error(String.format("[Redis] HSet failed, key: %s, field :%s, value: %s", key,
-                                        field, value));
+                        field, value));
         }
 
         release();
@@ -235,7 +281,7 @@ class RedisStorage implements Storage {
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error(String.format("[Redis] Failed to HDel, key: %s, field: %s", key, field),
-                          e);
+                        e);
         }
 
         release();
@@ -273,7 +319,6 @@ class RedisStorage implements Storage {
         try {
             this.jedis = new Jedis(host, port);
             success = true;
-            resetCount++;
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error("Can not connect to Redis", e);

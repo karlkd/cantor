@@ -21,7 +21,7 @@ public class Parser {
     public static final int RADIX = 1;
     public static final int RADIX_36 = 36;
 
-    static final VersionedSchema CURRENT_SCHEMA = Schema.VERSION_0;
+    public static final VersionedSchema CURRENT_SCHEMA = Schema.VERSION_0;
 
     private static final long BEGINNING = 0L;
 

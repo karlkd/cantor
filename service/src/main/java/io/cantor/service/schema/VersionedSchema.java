@@ -2,8 +2,6 @@ package io.cantor.service.schema;
 
 public interface VersionedSchema {
 
-    int lowBit();
-
     long descriptorMusk();
 
     long descriptorLeft();
@@ -28,4 +26,5 @@ public interface VersionedSchema {
 
     long maxCategory();
 
+    int maxInstanceCount();
 }

@@ -4,12 +4,16 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.cantor.http.Application;
 import io.cantor.http.Applications;
 import io.cantor.http.Server;
+import io.cantor.service.clients.LocalIdGenerator;
+import io.cantor.service.clients.Parser;
 import io.cantor.service.clients.TimeWatcher;
 import io.cantor.service.clients.storage.Storage;
 import io.cantor.service.clients.storage.StorageFactory;
@@ -47,6 +51,7 @@ public class InitialService {
             throw new IllegalStateException("Number of storage should be at least 1.");
 
         storages = new ArrayList<>();
+        Map<String, Integer> instancesNumberInStorage = new HashMap<>();
         for (String name : storageList) {
             name = name.trim();
             if (!StorageFactory.supportedStorage().contains(name)) {
@@ -63,13 +68,21 @@ public class InitialService {
                     log.error("create {} Storage failed", name);
                 throw new IllegalStateException(String.format("init %s failed", name));
             }
-            storages.add(opt.get());
+            Storage storage = opt.get();
+            int instanceNumber = storage.checkAndRegister(Parser.CURRENT_SCHEMA.maxInstanceCount());
+            if (instanceNumber != Storage.ILLEGAL_INSTANCE) {
+                storages.add(storage);
+                instancesNumberInStorage.put(storage.type(), instanceNumber);
+            } else {
+                if (log.isWarnEnabled())
+                    log.warn("Failed to register instance on {}", storage.type());
+            }
         }
         if (storages.isEmpty())
             throw new IllegalStateException("Number of storage should be at least 1.");
 
         //start time watcher
-        watcher = new TimeWatcher(appConfig, storages, instanceId);
+        watcher = new TimeWatcher(appConfig, storages, instanceId, instancesNumberInStorage);
         watcher.start();
 
         // init api handlers
@@ -85,7 +98,7 @@ public class InitialService {
         server.startup(8080);
     }
 
-    public void destroy() {
+    private void destroy() {
         log.info("stop watcher");
         if (null != watcher)
             watcher.stop();
@@ -93,6 +106,7 @@ public class InitialService {
         // destroy storage
         for (Storage storage : storages) {
             log.info("destroy {} storage", storage.type());
+            storage.deregister();
             storage.close();
         }
     }

@@ -37,6 +37,7 @@ class HBaseStorage implements Storage {
 
     private static final long CATE_HBASE = 0L;
 
+    private static final long REGISTERED = 1L;
     private static final int CHECK_ACTIVE_DELAY = 1;
     private static final long BEGINNING = 0;
     private static final String TYPE = "HBase";
@@ -51,6 +52,7 @@ class HBaseStorage implements Storage {
     private static final int TABLE_OPERATION_TIMEOUT = 500; // ms
     private static final long DEFAULT_TTL = 86400L * 1000L; // ms
     private final byte[] HBASE_LATTICE_KEY = Bytes.toBytes("time_lattice");
+    private static final String RUNNING_STATE_FMT = "running_state_%s";
 
     private final int tableCount;
     private final long ttl;
@@ -60,7 +62,6 @@ class HBaseStorage implements Storage {
     private ConcurrentHashMap<String, Table> tableConnections = new ConcurrentHashMap<>();
     private ScheduledExecutorService executorService;
     private volatile boolean available = false;
-    private volatile int resetCount = 0;    // only on thread changes it
     private String localId;
     private final byte[] hbaseTimeLatticeCol;
 
@@ -154,11 +155,6 @@ class HBaseStorage implements Storage {
     }
 
     @Override
-    public int resetCount() {
-        return resetCount;
-    }
-
-    @Override
     public long syncTime(long localTime) {
         Get get = (new Get(HBASE_LATTICE_KEY)).addColumn(INST_FAMILY, hbaseTimeLatticeCol);
 
@@ -213,7 +209,7 @@ class HBaseStorage implements Storage {
     }
 
     @Override
-    public void unregister() {
+    public void deregister() {
         if (null != metaTable) {
             try {
                 Delete delete = new Delete(HBASE_LATTICE_KEY);
@@ -235,6 +231,57 @@ class HBaseStorage implements Storage {
     @Override
     public long descriptor() {
         return CATE_HBASE;
+    }
+
+    @Override
+    public int checkAndRegister(int maxInstances) {
+        int i = 0;
+        int instanceNumber = ILLEGAL_INSTANCE;
+        while (i < maxInstances) {
+            try {
+                Increment increment = new Increment(
+                        Bytes.toBytes(String.format(RUNNING_STATE_FMT, i)));
+                byte[] col = Bytes.toBytes("state");
+                increment.addColumn(INST_FAMILY, col, 1);
+                Result result = metaTable.increment(increment);
+                Long afterInc = Bytes.toLong(result.getValue(INST_FAMILY, col));
+                if (afterInc == REGISTERED) {
+                    instanceNumber = i;
+                    heartbeat(instanceNumber, DEFAULT_HEARTBEAT_SECONDS * 1000);
+                    break;
+                } else {
+                    if (log.isWarnEnabled())
+                        log.warn("[HBase] Failed to register since the instance box {} is full.",
+                                i);
+                }
+            } catch (Exception e) {
+                if (log.isErrorEnabled())
+                    log.error(String.format("[HBase] Failed to check and register on %s.", i), e);
+            }
+
+            i++;
+        }
+
+        return instanceNumber;
+    }
+
+    @Override
+    public boolean heartbeat(int instanceNumber, int ttl) {
+        try {
+            Increment increment = new Increment(
+                    Bytes.toBytes(String.format(RUNNING_STATE_FMT, instanceNumber)));
+            byte[] col = Bytes.toBytes("state");
+            increment.addColumn(INST_FAMILY, col, 1);
+            increment.setTTL((long) ttl);
+            metaTable.increment(increment);
+
+            return true;
+        } catch (Exception e) {
+            if (log.isErrorEnabled())
+                log.error("[HBase] Failed to heartbeat.", e);
+
+            return false;
+        }
     }
 
     private Table getTable(String namespace, String tableName) throws Exception {
@@ -260,7 +307,6 @@ class HBaseStorage implements Storage {
                     createTableConnections(tableCount);
                     metaTable = getTable(NAMESPACE, META_TABLE);
                     available = true;
-                    resetCount++;
                 } catch (Exception e) {
                     if (log.isErrorEnabled())
                         log.error("[HBase] Connect to HBase failed");

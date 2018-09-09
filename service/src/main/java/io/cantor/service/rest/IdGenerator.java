@@ -18,7 +18,6 @@ import io.cantor.http.AffinityScheduler;
 import io.cantor.http.AppRequestResponseHandler;
 import io.cantor.http.HandlerRequest;
 import io.cantor.http.HandlerResponse;
-import io.cantor.http.TypeRef;
 import io.cantor.service.Utils;
 import io.cantor.service.clients.LocalIdGenerator;
 import io.cantor.service.clients.Parser;
@@ -32,7 +31,6 @@ public class IdGenerator implements
         AppRequestResponseHandler<AffinityScheduler, HandlerRequest, HandlerResponse> {
 
 
-    private static final TypeRef<Map<String, Object>> MAP_TYPE_REF = new TypeRef<Map<String, Object>>() {};
     private static final ExecutionException LOAD_CACHE_EXCEPTION = new ExecutionException(
             "load cache failed", new Throwable("load cache failed"));
     private static final ExecutionException LOAD_CACHE_CLIENT_EXCEPTION = new ExecutionException(
@@ -174,7 +172,7 @@ public class IdGenerator implements
         if (ILLEGAL_SEQ == seq) {
             // from local
             descriptor = LocalIdGenerator.LOCAL_CATE;
-            Pair<Long, Long> seqParts = localIdGenerator.getFromLocal(category, range);
+            Pair<Long, Long> seqParts = localIdGenerator.getFromLocal(category, range, timeWatcher.instanceId());
             actualTs = seqParts.getFirst();
             seq = seqParts.getSecond();
         }

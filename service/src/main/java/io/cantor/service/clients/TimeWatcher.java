@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.typesafe.config.Config;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,23 +25,28 @@ public class TimeWatcher {
     private static final int DEFAULT_DELAY = 1;
     private static final long BEGINNING = 0;
 
-
     private AtomicBoolean started = new AtomicBoolean(false);
     private AtomicBoolean stopped = new AtomicBoolean(false);
+
+    @Getter
+    private String localId;
 
     private AtomicLong availableTimestamp;
     private ScheduledExecutorService watchExecutor;
     private int watchDelay;
     private List<Storage> storages;
-    @Getter
-    private String localId;
     private int maxDelayed;
+    private Map<String, Integer> instancesBox;
 
-    public TimeWatcher(Config config, List<Storage> storages, String localId) {
+    public TimeWatcher(Config config, List<Storage> storages, String localId,
+                       Map<String, Integer> instancesBox) {
+
         this.localId = localId;
         this.storages = storages;
-        this.maxDelayed = config.hasPath("storage.max.delay.seconds") ? config.getInt("storage.max.delay.seconds") : DEFAULT_MAX_DELAYED_SECONDS;
+        this.maxDelayed = config.hasPath("storage.max.delay.seconds") ? config.getInt(
+                "storage.max.delay.seconds") : DEFAULT_MAX_DELAYED_SECONDS;
         availableTimestamp = new AtomicLong(0);
+        this.instancesBox = instancesBox;
 
         Thread.UncaughtExceptionHandler handler = (t, e) -> {
             if (log.isErrorEnabled())
@@ -49,7 +55,8 @@ public class TimeWatcher {
 
         ThreadFactoryBuilder builder = (new ThreadFactoryBuilder()).setDaemon(false)
                                                                    .setNameFormat("time-watcher-%s")
-                                                                   .setUncaughtExceptionHandler(handler);
+                                                                   .setUncaughtExceptionHandler(
+                                                                           handler);
         watchDelay = config.hasPath(DELAY) ? config.getInt(DELAY) : DEFAULT_DELAY;
         watchExecutor = Executors.newSingleThreadScheduledExecutor(builder.build());
     }
@@ -100,6 +107,11 @@ public class TimeWatcher {
         return maxDelayed <= (local - fromLattice) ? local : fromLattice;
     }
 
+    public long instanceId() {
+        Storage first = storages.get(0);
+        return first.descriptor() + (long) instancesBox.get(first.type());
+    }
+
     private long localTimestamp() {
         return System.currentTimeMillis() / 1000;
     }
@@ -135,6 +147,13 @@ public class TimeWatcher {
         if (log.isDebugEnabled())
             log.debug("new max time is {}", maxTime);
         availableTimestamp.set(maxTime >= availableLocalTs ? maxTime : availableLocalTs);
+
+        heartbeat();
+    }
+
+    private void heartbeat() {
+        storages.forEach(
+                s -> s.heartbeat(instancesBox.get(s.type()), Storage.DEFAULT_HEARTBEAT_SECONDS));
     }
 
     private long getMaxTime() throws Exception {
@@ -151,8 +170,7 @@ public class TimeWatcher {
             }
 
             List<Long> timeMeta = storage.timeMeta();
-            Optional<Long> opt = timeMeta.stream()
-                                         .max((t1, t2) -> ((Long) (t1 - t2)).intValue());
+            Optional<Long> opt = timeMeta.stream().max((t1, t2) -> ((Long) (t1 - t2)).intValue());
             if (opt.isPresent()) {
                 maxTime = opt.get();
                 break;
