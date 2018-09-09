@@ -43,8 +43,8 @@ public class SequenceProducer {
     private Lock feedingLock = new ReentrantLock();
     private Condition feedingCdt = feedingLock.newCondition();
 
-    public SequenceProducer(long range) {
-        this(new ServiceCaller(), range);
+    public SequenceProducer(String host, int port, long range) {
+        this(new ServiceCaller(host, port), range);
     }
 
     SequenceProducer(ServiceCaller sequenceClient, long range) {

@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
@@ -13,11 +15,11 @@ import okhttp3.OkHttpClient;
 public class ProducerTest {
 
     @Test
-    public void test() throws Exception {
+    public void testProduce() throws Exception {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new MockHttpInterceptor())
                 .build();
-        ServiceCaller caller = new ServiceCaller(client);
+        ServiceCaller caller = new ServiceCaller("localhost", 8080, client);
         SequenceProducer sequenceProducer = new SequenceProducer(caller,1000);
         Sequence sequence = sequenceProducer.produce(5);
         CopyOnWriteArrayList<Long> list = new CopyOnWriteArrayList<>();
@@ -34,7 +36,10 @@ public class ProducerTest {
             }).start();
         }
         latch.await();
+        Set<Long> hashSet = new HashSet<>();
+        hashSet.addAll(list);
         list.sort(Comparator.naturalOrder());
+        Assert.assertEquals(1000, hashSet.size());
         Assert.assertEquals(1001L, list.get(list.size() - 1).longValue());
     }
 }

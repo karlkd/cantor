@@ -26,12 +26,16 @@ public class ServiceCaller {
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final OkHttpClient client;
+    private final String host;
+    private final int port;
 
-    ServiceCaller() {
-        this(new OkHttpClient());
+    ServiceCaller(String host, int port) {
+        this(host, port, new OkHttpClient());
     }
 
-    ServiceCaller(OkHttpClient client) {
+    ServiceCaller(String host, int port, OkHttpClient client) {
+        this.host = host;
+        this.port = port;
         this.client = client;
     }
 
@@ -39,8 +43,8 @@ public class ServiceCaller {
         Long timeout = sequenceRequest.timeout();
         HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
                 .scheme("http")
-                .host("localhost")
-                .port(8080)
+                .host(host)
+                .port(port)
                 .addPathSegment(sequenceRequest.path());
         sequenceRequest.queries().forEach(urlBuilder::addQueryParameter);
         okhttp3.Request request = new okhttp3.Request.Builder()
