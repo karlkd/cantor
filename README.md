@@ -16,6 +16,15 @@ When persistence service is down, Cantor service can downgrade to generate ID in
  
 ## User guide
 
+All components are dockerized. Deployment demonstration:
+- Build Java project
+  - `$ cd $PROJECT_ROOT`
+  - `$ mvn clean install -N && cd http && mvn clean install && cd ../service && mvn clean package` 
+- Build Docker images and deploy to docker swarm:
+  - `$ cd $PROJECT_ROOT`
+  - `$ docker-compose build`
+  - `$ docker stack deploy -c docker-compose.yml cantor`
+
 ## Service
 
 ## Persistence
