@@ -5,12 +5,6 @@ Cantor
 Cantor is a global sequence generator service. 
 Cantor can generate unique, relatively orderly, inverse decodable, 64-bit integer IDs.
 
-Protocol of ID
-
-| 1 bit | 2 bit | 2 bit | 8 bit | 2 bit | 28 bit | 17 bit |
-|:----  |:----  |:----  |:----  |:----  |:------ |:------ |
-| Sign bit, never used | Protocol version | Generation sources descriptor | Custom spaces | Cantor service instance number | Timestamp | Sequence |
-
 In short, Cantor service guarantees that all unique IDs are generated based on its logic clock and a persistent sequence consuming state.
 When persistence service is down, Cantor service can downgrade to generate ID in local. 
  
