@@ -3,7 +3,19 @@ Cantor
 
 ## Introduction
 Cantor is a global sequence generator service, which is distributed, stateless and high available. 
+
 Cantor generates unique, relatively orderly and inverse decodable 64-bit integer IDs.
+
+This project provides a easy way to use it in your docker environment.
+In fact, you can only use a few commands to start up all the components the service depends on and the tools, such like monitors and load testing.
+
+This project contains several components:
+- Cantor service: the maintain service of the project
+- Redis: one of the storage Cantor can depends on, optioanl in runtime
+- HBase: one of the storage Cantor can depends on, optioanl in runtime
+- Grafana: used for monitoring Cantor instances
+- InfluxDB: storage Grafana depends on
+- JMXTrans: used for collecting the monitor data of Cantor
 
 Protocol of ID
 
@@ -16,7 +28,9 @@ When persistence service is down, Cantor service can downgrade to generate ID in
  
 ## User guide
 
-All components are dockerized. Deployment demonstration:
+All components are dockerized and we can starts up all the components by `docker-compose`. 
+
+Deployment demonstration:
 - Build Java project
   - `$ cd $PROJECT_ROOT`
   - `$ mvn clean install -N && cd http && mvn clean install && cd ../service && mvn clean package` 
