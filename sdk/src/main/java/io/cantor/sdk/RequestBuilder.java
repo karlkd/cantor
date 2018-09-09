@@ -1,5 +1,6 @@
 package io.cantor.sdk;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AccessLevel;
@@ -9,8 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestBuilder {
 
-    private long serviceId;
-    private long extra;
+    private long category;
     private long range;
     private Long timeout;
 
@@ -18,13 +18,8 @@ public class RequestBuilder {
         return new RequestBuilder();
     }
 
-    public RequestBuilder serviceId(long serviceId) {
-        this.serviceId = serviceId;
-        return this;
-    }
-
-    public RequestBuilder extra(long extra) {
-        this.extra = extra;
+    public RequestBuilder category(long category) {
+        this.category = category;
         return this;
     }
 
@@ -39,22 +34,22 @@ public class RequestBuilder {
     }
 
     public SequenceRequest build() {
-        return new SequenceRequest(serviceId, extra, range, timeout);
+        return new SequenceRequest(category, range, timeout);
     }
 
 
     @Getter
     public class SequenceRequest {
-        private long serviceId;
-        private long extra;
-        private long range;
+        private long category;
         private Long timeout;
+        private Map<String, String> queries = new HashMap<>();
 
-        private SequenceRequest(long serviceId, long extra, long range, Long timeout) {
-            this.serviceId = serviceId;
-            this.extra = extra;
-            this.range = range;
+        private SequenceRequest(long category, long range, Long timeout) {
+            this.category = category;
             this.timeout = timeout;
+            queries.put("cate", Long.valueOf(category).toString());
+            queries.put("range", Long.valueOf(range).toString());
+            queries.put("mode", "0");
         }
 
         public Map<String, String> headers() {
@@ -62,15 +57,11 @@ public class RequestBuilder {
         }
 
         public Map<String, String> queries() {
-            return null;
-        }
-
-        public byte[] content() {
-            return String.format("{\"range\":%s,\"extra\":%s,\"mode\":1}", range, extra).getBytes();
+            return queries;
         }
 
         public String path() {
-            return "/id/" + serviceId;
+            return "/id";
         }
     }
 }
