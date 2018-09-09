@@ -5,7 +5,15 @@ ARG SC_HOME="/cator"
 RUN mkdir ${SC_HOME} \
     && mkdir /jmeter
 
-COPY ./*.jmx ${SC_HOME}
+COPY ./cater_sc_100.jmx ${SC_HOME}
+COPY ./cater_sc_200.jmx ${SC_HOME}
+COPY ./cater_sc_400.jmx ${SC_HOME}
+COPY ./cater_sc_1000.jmx ${SC_HOME}
+COPY ./cater_sc_5000.jmx ${SC_HOME}
+COPY ./cater_sc_5000_10.jmx ${SC_HOME}
+COPY ./cater_sc_10000.jmx ${SC_HOME}
+COPY ./cater_sc_10000_10.jmx ${SC_HOME}
+COPY ./cater_sc_10000_300.jmx ${SC_HOME}
 COPY ./result ${SC_HOME}
 COPY ./*.tgz /jmeter
 COPY ./r.csv ${SC_HOME}

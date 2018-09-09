@@ -46,5 +46,22 @@ Monitoring by [Jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](http
 
 
 ## Performance Test
-- Jmeter
-  - sort r.csv | uniq -c | awk '{print $1}'|sort|uniq -c
+  Used apache-jmeter Completing Performance Test
+  jmeter : apache-jmeter-4.0
+  
+- Script
+   cater_sc_100.jmx
+   cater_sc_200.jmx
+   cater_sc_400.jmx
+   cater_sc_1000.jmx
+   cater_sc_5000.jmx
+   cater_sc_5000_10.jmx
+   cater_sc_10000.jmx
+   cater_sc_10000_10.jmx
+   cater_sc_10000_300.jmx
+  
+- Jmeter CMD
+   docker exec -it  [CONTAINER] /jmeter/apache-jmeter-4.0/bin/jmeter -n -t [Script]
+
+- Jmeter result
+  docker exec -it  [CONTAINER]  sort r.csv | uniq -c | awk '{print $1}'|sort|uniq -c
