@@ -7,9 +7,9 @@ Cantor can generate unique, relatively orderly, inverse decodable, 64-bit intege
 
 Protocol of ID
 
-| 1 bit | 2 bit | 2 bit | 8 bit | 2 bit | 28 bit | 17 bit |
+| 1 bit | 2 bit | 2 bit | 7 bit | 3 bit | 28 bit | 21 bit |
 |:----  |:----  |:----  |:----  |:----  |:------ |:------ |
-| Sign bit, never used | Protocol version | Generation sources descriptor | Custom spaces | Cantor service instance number | Timestamp | Sequence |
+| Sign bit as 0, never used | Protocol version, supporting 4 versions most | Generation sources descriptor, 4 in most | Custom spaces, 128 spaces most | Cantor service instance number, supporting 4 instances online most | Timestamp, which can be used in 8 years from 2018-01-01 00:00:00 | Sequence, about 13k ids generated per seconds |
 
 In short, Cantor service guarantees that all unique IDs are generated based on its logic clock and a persistent sequence consuming state.
 When persistence service is down, Cantor service can downgrade to generate ID in local. 
