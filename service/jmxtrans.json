@@ -3,25 +3,25 @@
     {
       "port": "9002",
       "host": "localhost",
+      "outputWriters": [
+        {
+          "@class": "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url": "http://influxdb:8086/",
+          "username": "admin",
+          "password": "123456",
+          "database": "jmxdb",
+          "tags": {
+            "application": "cantor_service"
+          }
+        }
+      ],
       "queries": [
         {
           "obj": "java.lang:type=Memory",
+          "resultAlias": "memory",
           "attr": [
             "HeapMemoryUsage",
             "NonHeapMemoryUsage"
-          ],
-          "resultAlias": "memory",
-          "outputWriters": [
-            {
-              "@class": "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
-              "url": "http://influxdb:8086/",
-              "username": "admin",
-              "password": "123456",
-              "database": "jmxdb",
-              "tags": {
-                "application": "cantor_service"
-              }
-            }
           ]
         },
         {
@@ -32,18 +32,6 @@
             "PeakThreadCount",
             "ThreadCount",
             "TotalStartedThreadCount"
-          ],
-          "outputWriters": [
-            {
-              "@class": "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
-              "url": "http://influxdb:8086/",
-              "username": "admin",
-              "password": "123456",
-              "database": "jmxdb",
-              "tags": {
-                "application": "cantor_service"
-              }
-            }
           ]
         },
         {
@@ -61,18 +49,6 @@
             "ProcessCpuLoad",
             "ProcessCpuTime",
             "SystemCpuLoad"
-          ],
-          "outputWriters": [
-            {
-              "@class": "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
-              "url": "http://influxdb:8086/",
-              "username": "admin",
-              "password": "123456",
-              "database": "jmxdb",
-              "tags": {
-                "application": "cantor_service"
-              }
-            }
           ]
         }
       ]
