@@ -61,7 +61,7 @@ public class RequestBuilder {
         }
 
         public String path() {
-            return "/id";
+            return "id";
         }
     }
 }

@@ -166,10 +166,10 @@ public class SequenceProducer {
                         lock.unlock();
                     }
                 }
-                if (newId != null &&
-                        (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - EPOCH - newId.timestamp()) >= EXPIRED_GAP_IN_SECONDS) {
-                    newId = null;
-                }
+//                if (newId != null &&
+//                        (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - EPOCH - newId.timestamp()) >= EXPIRED_GAP_IN_SECONDS) {
+//                    newId = null;
+//                }
             }
             return newId;
         }
