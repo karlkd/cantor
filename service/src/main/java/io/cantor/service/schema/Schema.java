@@ -4,7 +4,7 @@ public class Schema {
 
     public static VersionedSchema VERSION_0 = new V0();
 
-    private static final long VERSION_BIT = 4L;
+    private static final long VERSION_BIT = 2L;
     public static final long VERSION_MUSK = ~(-1L << VERSION_BIT);
     public static final long VERSION_LEFT = 59L;
 
@@ -24,7 +24,7 @@ public class Schema {
         private static final long CATEGORY_BIT = 7L;
         private static final long INSTANCE_BIT = 3L;
         private static final long TIMESTAMP_BIT = 28L;
-        private static final long SEQUENCE_BIT = 17L;
+        private static final long SEQUENCE_BIT = 21L;
 
         private static final long MAX_CATEGORY = (1L << CATEGORY_BIT) - 1;
         private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BIT) - 1;
