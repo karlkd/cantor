@@ -39,11 +39,19 @@ A Java SDK to improve the productivity of interacting with Cantor service.
 - Cache the IDs in memory with a TTL. When IDs are expired or out of stock, SDK will retrieve a new batch from Cantor service.
 
 ## Monitoring
-Monitoring by [Jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](https://github.com/influxdata/influxdb) & [grafana](https://github.com/grafana/grafana)
+Monitoring by [jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](https://github.com/influxdata/influxdb) &
+ [grafana](https://github.com/grafana/grafana)
 
 ![Monitoring](https://raw.githubusercontent.com/git-hacker/cantor/master/images/monitoring.png)
 
-
+- Build and deploy the docker images
+- Open grafana `http://localhost:3000`
+- Add data source in grafana
+  - Type: InfluxDB
+  - Database: jmxdb
+  - User: admin
+  - Password: 123456
+- Import `jmxtrans.json` in grafana
 
 ## Performance Test
 Uses apache-jmeter as performance test client. Jmeter version: `apache-jmeter-4.0`.
