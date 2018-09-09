@@ -47,7 +47,9 @@ Monitoring by [jmxtrans](https://github.com/jmxtrans/jmxtrans) & [influxdb](http
 - Build and deploy the docker images
 - Open grafana `http://localhost:3000`
 - Add data source in grafana
+  - Name: influxdb
   - Type: InfluxDB
+  - URL: http://influxdb:8086
   - Database: jmxdb
   - User: admin
   - Password: 123456

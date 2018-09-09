@@ -57,8 +57,8 @@
       "description": "内存相关指标",
       "fill": 1,
       "gridPos": {
-        "h": 9,
-        "w": 13,
+        "h": 10,
+        "w": 12,
         "x": 0,
         "y": 0
       },
@@ -102,7 +102,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "memory",
+          "measurement": "MemoryImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -139,7 +139,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "memory",
+          "measurement": "MemoryImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "B",
@@ -212,8 +212,8 @@
       "fill": 1,
       "gridPos": {
         "h": 10,
-        "w": 11,
-        "x": 13,
+        "w": 12,
+        "x": 12,
         "y": 0
       },
       "id": 5,
@@ -255,7 +255,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "operatingSystem",
+          "measurement": "OperatingSystemImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -292,7 +292,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "operatingSystem",
+          "measurement": "OperatingSystemImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "B",
@@ -361,12 +361,166 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "${DS_INFLUXDB}",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 7,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "CollectionTime",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "0"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "GarbageCollectorImpl",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "CollectionTime"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "CollectionCount",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "GarbageCollectorImpl",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "CollectionCount"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "GC",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_INFLUXDB}",
       "description": "线程相关指标",
       "fill": 1,
       "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
+        "h": 9,
+        "w": 12,
+        "x": 12,
         "y": 10
       },
       "id": 2,
@@ -410,7 +564,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "threading",
+          "measurement": "JvmThreadingImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -447,7 +601,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "threading",
+          "measurement": "JvmThreadingImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "B",
@@ -484,7 +638,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "threading",
+          "measurement": "JvmThreadingImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "C",
@@ -521,7 +675,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "threading",
+          "measurement": "JvmThreadingImpl",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "D",
@@ -624,5 +778,5 @@
   "timezone": "",
   "title": "Cantor",
   "uid": "_QR8s32ik",
-  "version": 5
+  "version": 6
 }
